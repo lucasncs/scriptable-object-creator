@@ -99,13 +99,7 @@ namespace ScriptableObjectWizard
 
         private void CreateAsset(Type type)
         {
-            ScriptableObject asset = CreateInstance(type);
-            ProjectWindowUtil.StartNameEditingIfProjectWindowExists(
-                asset.GetInstanceID(),
-                CreateInstance<EndNameEdit>(),
-                $"{type.Name}.asset",
-                AssetPreview.GetMiniThumbnail(asset),
-                null);
+            ScriptableObjectFactory.StartCreatingAsset(type);
             Close();
             GUIUtility.ExitGUI();
         }

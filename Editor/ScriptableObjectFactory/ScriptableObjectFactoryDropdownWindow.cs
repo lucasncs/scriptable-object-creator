@@ -1,28 +1,11 @@
 using System;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
-using UnityEditor.ProjectWindowCallback;
 using UnityEngine;
 
 namespace ScriptableObjectWizard
 {
-    internal class EndNameEdit : EndNameEditAction
-    {
-        #region implemented abstract members of EndNameEditAction
-
-        public override void Action(int instanceId, string pathName, string resourceFile)
-        {
-            AssetDatabase.CreateAsset(EditorUtility.InstanceIDToObject(instanceId),
-                AssetDatabase.GenerateUniqueAssetPath(pathName));
-        }
-
-        #endregion
-    }
-
-    /// <summary>
-    /// Scriptable object window.
-    /// </summary>
-    public class ScriptableObjectFactoryWindow : EditorWindow
+    public class ScriptableObjectFactoryDropdownWindow : EditorWindow
     {
         private Type[] _types;
         private int _selectedIndex;
@@ -30,7 +13,7 @@ namespace ScriptableObjectWizard
 
         public static void Init(Type[] types)
         {
-            var window = GetWindow<ScriptableObjectFactoryWindow>(true, "Create a new ScriptableObject", true);
+            var window = GetWindow<ScriptableObjectFactoryDropdownWindow>(true, "Create a new ScriptableObject", true);
             window._types = types;
             window.ShowPopup();
         }
@@ -54,7 +37,7 @@ namespace ScriptableObjectWizard
 
             if (GUILayout.Button("Create"))
             {
-                CreateAsset(selectedName);
+                CreateAsset();
             }
         }
 
@@ -64,15 +47,9 @@ namespace ScriptableObjectWizard
             Repaint();
         }
 
-        private void CreateAsset(string selectedName)
+        private void CreateAsset()
         {
-            ScriptableObject asset = CreateInstance(_types[_selectedIndex]);
-            ProjectWindowUtil.StartNameEditingIfProjectWindowExists(
-                asset.GetInstanceID(),
-                CreateInstance<EndNameEdit>(), 
-                $"{selectedName}.asset", 
-                AssetPreview.GetMiniThumbnail(asset), 
-                null);
+            ScriptableObjectFactory.StartCreatingAsset(_types[_selectedIndex]);
             Close();
             GUIUtility.ExitGUI();
         }
