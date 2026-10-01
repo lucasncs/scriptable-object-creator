@@ -6,15 +6,15 @@ using UnityEditor.Compilation;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace ScriptableObjectWizard
+namespace ScriptableObjectWizard.Settings
 {
     /// <summary>
     /// Draws the wizard settings under Edit > Project Settings > Scriptable Object Wizard.
     /// </summary>
     internal class ScriptableObjectWizardSettingsProvider : SettingsProvider
     {
-        private const string SettingsMenuPath = "Project/Scriptable Object Wizard";
-        private const string SearchFieldControlName = "ScriptableObjectWizardAssemblySearch";
+        private const string SETTINGS_MENU_PATH = "Project/Scriptable Object Wizard";
+        private const string SEARCH_FIELD_CONTROL_NAME = "ScriptableObjectWizardAssemblySearch";
 
         private struct AssemblyEntry
         {
@@ -31,7 +31,7 @@ namespace ScriptableObjectWizard
         private bool _showOtherAssemblies;
 
         private ScriptableObjectWizardSettingsProvider()
-            : base(SettingsMenuPath, SettingsScope.Project, new[] { "ScriptableObject", "Assembly", "Wizard" })
+            : base(SETTINGS_MENU_PATH, SettingsScope.Project, new[] { "ScriptableObject", "Assembly", "Wizard", "Type Picker" })
         {
         }
 
@@ -58,6 +58,11 @@ namespace ScriptableObjectWizard
         public override void OnGUI(string searchContext)
         {
             ScriptableObjectWizardSettings settings = ScriptableObjectWizardSettings.Instance;
+
+            settings.TypePicker = (TypePickerStyle)EditorGUILayout.EnumPopup(
+                new GUIContent("Type Picker", "How Assets > Create > ScriptableObject lets you choose the class to create."),
+                settings.TypePicker);
+            EditorGUILayout.Space();
 
             EditorGUILayout.HelpBox(
                 "Select the assemblies whose ScriptableObject types are listed by Assets > Create > ScriptableObject.",
@@ -119,7 +124,7 @@ namespace ScriptableObjectWizard
             Event current = Event.current;
             if (text.Length > 0 && current.type == EventType.MouseDown && buttonRect.Contains(current.mousePosition))
             {
-                _refocusSearchField = GUI.GetNameOfFocusedControl() == SearchFieldControlName;
+                _refocusSearchField = GUI.GetNameOfFocusedControl() == SEARCH_FIELD_CONTROL_NAME;
                 text = string.Empty;
                 GUIUtility.keyboardControl = 0;
                 current.Use();
@@ -128,7 +133,7 @@ namespace ScriptableObjectWizard
             else if (_refocusSearchField && current.type == EventType.Layout)
             {
                 _refocusSearchField = false;
-                EditorGUI.FocusTextInControl(SearchFieldControlName);
+                EditorGUI.FocusTextInControl(SEARCH_FIELD_CONTROL_NAME);
             }
 
             if (_searchFieldStyle == null || _searchFieldStyle.name != fieldStyle.name)
@@ -137,7 +142,7 @@ namespace ScriptableObjectWizard
                 _searchFieldStyle.padding.right += (int)buttonWidth + 2;
             }
 
-            GUI.SetNextControlName(SearchFieldControlName);
+            GUI.SetNextControlName(SEARCH_FIELD_CONTROL_NAME);
             text = EditorGUI.TextField(rect, text, _searchFieldStyle);
 
             if (current.type == EventType.Repaint)

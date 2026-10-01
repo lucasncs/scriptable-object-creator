@@ -1,9 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEditor;
-using UnityEditor.Experimental.GraphView;
+using UnityEditor.IMGUI.Controls;
 using UnityEditor.ProjectWindowCallback;
 using UnityEngine;
 
@@ -25,78 +22,59 @@ namespace ScriptableObjectWizard
     /// <summary>
     /// Scriptable object window.
     /// </summary>
-    public class ScriptableObjectFactoryWindow : EditorWindow, ISearchWindowProvider
+    public class ScriptableObjectFactoryWindow : EditorWindow
     {
-        private string[] _names;
         private Type[] _types;
         private int _selectedIndex;
+        private AdvancedDropdownState _dropdownState;
 
         public static void Init(Type[] types)
         {
             var window = GetWindow<ScriptableObjectFactoryWindow>(true, "Create a new ScriptableObject", true);
             window._types = types;
-            window._names = types.Select(t => t.FullName).ToArray();
             window.ShowPopup();
         }
 
         private void OnGUI()
         {
+            if (_types == null)
+            {
+                Close();
+                GUIUtility.ExitGUI();
+            }
+
             GUILayout.Label("ScriptableObject Class");
             string selectedName = _types[_selectedIndex].Name;
-            if (GUILayout.Button($"{selectedName}", EditorStyles.popup))
+            Rect dropdownRect = GUILayoutUtility.GetRect(new GUIContent(selectedName), EditorStyles.popup);
+            if (EditorGUI.DropdownButton(dropdownRect, new GUIContent(selectedName), FocusType.Keyboard, EditorStyles.popup))
             {
-                SearchWindow.Open(new SearchWindowContext(GUIUtility.GUIToScreenPoint(Event.current.mousePosition)),
-                    this);
+                if (_dropdownState == null) _dropdownState = new AdvancedDropdownState();
+                new ScriptableObjectTypeDropdown(_dropdownState, _types, OnTypeSelected).Show(dropdownRect);
             }
 
             if (GUILayout.Button("Create"))
             {
-                ScriptableObject asset = CreateInstance(_types[_selectedIndex]);
-                ProjectWindowUtil.StartNameEditingIfProjectWindowExists(
-                    asset.GetInstanceID(),
-                    CreateInstance<EndNameEdit>(), 
-                    $"{selectedName}.asset", 
-                    AssetPreview.GetMiniThumbnail(asset), 
-                    null);
-                Close();
+                CreateAsset(selectedName);
             }
         }
 
-        public List<SearchTreeEntry> CreateSearchTree(SearchWindowContext context)
+        private void OnTypeSelected(int index)
         {
-            var list = new List<SearchTreeEntry> { new SearchTreeGroupEntry(new GUIContent("ScriptableObject"), 0) };
-            var groups = new List<string>();
-            for (int i = 0; i < _names.Length; i++)
-            {
-                string[] namespaceLevels = _names[i].Split('.');
-                var groupName = new StringBuilder();
-                for (int j = 0; j < namespaceLevels.Length - 1; j++)
-                {
-                    groupName.Append(namespaceLevels[j]);
-                    string groupNameString = groupName.ToString();
-                    if (!groups.Contains(groupNameString))
-                    {
-                        list.Add(new SearchTreeGroupEntry(new GUIContent(namespaceLevels[j]), j + 1));
-                        groups.Add(groupNameString);
-                    }
-
-                    groupName.Append("/");
-                }
-
-                var entry = new SearchTreeEntry(new GUIContent(namespaceLevels.Last()))
-                {
-                    level = namespaceLevels.Length, userData = i
-                };
-                list.Add(entry);
-            }
-
-            return list;
+            _selectedIndex = index;
+            Repaint();
         }
 
-        public bool OnSelectEntry(SearchTreeEntry searchTreeEntry, SearchWindowContext context)
+        private void CreateAsset(string selectedName)
         {
-            _selectedIndex = (int)searchTreeEntry.userData;
-            return true;
+            ScriptableObject asset = CreateInstance(_types[_selectedIndex]);
+            ProjectWindowUtil.StartNameEditingIfProjectWindowExists(
+                asset.GetInstanceID(),
+                CreateInstance<EndNameEdit>(), 
+                $"{selectedName}.asset", 
+                AssetPreview.GetMiniThumbnail(asset), 
+                null);
+            Close();
+            GUIUtility.ExitGUI();
         }
     }
 }

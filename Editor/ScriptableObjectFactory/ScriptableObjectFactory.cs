@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ScriptableObjectWizard.Settings;
 using UnityEditor;
 using UnityEngine;
 
@@ -15,10 +16,25 @@ namespace ScriptableObjectWizard
         [MenuItem("Assets/Create/ScriptableObject", priority = 1)]
         public static void CreateScriptableObject()
         {
-            CreateObjectOfType(typeof(ScriptableObject));
+            Type[] types = GetIncludedTypes(typeof(ScriptableObject));
+            if (types == null) return;
+
+            switch (ScriptableObjectWizardSettings.Instance.TypePicker)
+            {
+                case TypePickerStyle.TreeView:
+                    ScriptableObjectFactoryTreeWindow.Init(types);
+                    break;
+                default:
+                    ScriptableObjectFactoryWindow.Init(types);
+                    break;
+            }
         }
 
-        private static void CreateObjectOfType(Type type)
+        /// <summary>
+        /// Returns the creatable subclasses of <paramref name="type"/> in the assemblies selected in the settings,
+        /// or null after offering to open the settings when there are none.
+        /// </summary>
+        private static Type[] GetIncludedTypes(Type type)
         {
             if (type == null) throw new ArgumentNullException(nameof(type));
             ScriptableObjectWizardSettings settings = ScriptableObjectWizardSettings.Instance;
@@ -36,10 +52,10 @@ namespace ScriptableObjectWizard
                     SettingsService.OpenProjectSettings("Project/Scriptable Object Wizard");
                 }
 
-                return;
+                return null;
             }
 
-            ScriptableObjectFactoryWindow.Init(allScriptableObjects);
+            return allScriptableObjects;
         }
 
         /// <summary>
