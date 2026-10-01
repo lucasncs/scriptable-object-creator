@@ -31,7 +31,8 @@ namespace ScriptableObjectWizard.Settings
         private bool _showOtherAssemblies;
 
         private ScriptableObjectWizardSettingsProvider()
-            : base(SETTINGS_MENU_PATH, SettingsScope.Project, new[] { "ScriptableObject", "Assembly", "Wizard", "Type Picker" })
+            : base(SETTINGS_MENU_PATH, SettingsScope.Project,
+                new[] { "ScriptableObject", "Assembly", "Wizard", "Type Picker" })
         {
         }
 
@@ -43,7 +44,10 @@ namespace ScriptableObjectWizard.Settings
 
         public override void OnActivate(string searchContext, VisualElement rootElement)
         {
-            var projectAssemblyNames = new HashSet<string>(CompilationPipeline.GetAssemblies().Select(a => a.name));
+            // Assemblies compiled from Unity's own packages are listed with the Unity assemblies, not the project's.
+            var projectAssemblyNames = new HashSet<string>(CompilationPipeline.GetAssemblies()
+                .Select(a => a.name)
+                .Where(name => !IsUnityPackageAssembly(name)));
 
             List<AssemblyEntry> entries = ScriptableObjectFactory.GetCreatableTypes()
                 .GroupBy(t => t.Assembly.GetName().Name)
@@ -55,12 +59,20 @@ namespace ScriptableObjectWizard.Settings
             _otherAssemblies = entries.Where(e => !projectAssemblyNames.Contains(e.Name)).ToList();
         }
 
+        private static bool IsUnityPackageAssembly(string assemblyName)
+        {
+            string asmdefPath = CompilationPipeline.GetAssemblyDefinitionFilePathFromAssemblyName(assemblyName);
+            return asmdefPath != null &&
+                   asmdefPath.StartsWith("Packages/com.unity.", StringComparison.OrdinalIgnoreCase);
+        }
+
         public override void OnGUI(string searchContext)
         {
             ScriptableObjectWizardSettings settings = ScriptableObjectWizardSettings.Instance;
 
             settings.TypePicker = (TypePickerStyle)EditorGUILayout.EnumPopup(
-                new GUIContent("Type Picker", "How Assets > Create > ScriptableObject lets you choose the class to create."),
+                new GUIContent("Type Picker",
+                    "How Assets > Create > ScriptableObject lets you choose the class to create."),
                 settings.TypePicker);
             EditorGUILayout.Space();
 
@@ -112,8 +124,9 @@ namespace ScriptableObjectWizard.Settings
         private string DrawSearchField(string text)
         {
             GUIStyle fieldStyle = GUI.skin.FindStyle("SearchTextField") ?? EditorStyles.textField;
-            GUIStyle cancelStyle = GUI.skin.FindStyle(text.Length > 0 ? "SearchCancelButton" : "SearchCancelButtonEmpty")
-                                   ?? GUIStyle.none;
+            GUIStyle cancelStyle =
+                GUI.skin.FindStyle(text.Length > 0 ? "SearchCancelButton" : "SearchCancelButtonEmpty")
+                ?? GUIStyle.none;
 
             Rect rect = GUILayoutUtility.GetRect(GUIContent.none, fieldStyle, GUILayout.ExpandWidth(true));
             float buttonWidth = cancelStyle.fixedWidth > 0 ? cancelStyle.fixedWidth : 14f;

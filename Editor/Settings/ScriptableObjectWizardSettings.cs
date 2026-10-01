@@ -24,11 +24,8 @@ namespace ScriptableObjectWizard.Settings
 
         private static ScriptableObjectWizardSettings _instance;
 
-        [SerializeField]
-        private List<string> _assemblyNames = new List<string> { "Assembly-CSharp" };
-
-        [SerializeField]
-        private TypePickerStyle _typePicker = TypePickerStyle.Dropdown;
+        [SerializeField] private List<string> _assemblyNames = new List<string> { "Assembly-CSharp" };
+        [SerializeField] private TypePickerStyle _typePicker = TypePickerStyle.Dropdown;
 
         public static ScriptableObjectWizardSettings Instance
         {
@@ -77,7 +74,7 @@ namespace ScriptableObjectWizard.Settings
             Save();
         }
 
-        public void Save()
+        private void Save()
         {
             InternalEditorUtility.SaveToSerializedFileAndForget(new Object[] { this }, SettingsPath, true);
         }
