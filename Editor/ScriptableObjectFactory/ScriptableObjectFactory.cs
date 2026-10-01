@@ -93,7 +93,7 @@ namespace ScriptableObjectWizard
                    && !typeof(EditorWindow).IsAssignableFrom(type) && !typeof(Editor).IsAssignableFrom(type);
         }
 
-        internal class EndNameEdit : EndNameEditAction
+        private class EndNameEdit : EndNameEditAction
         {
             public override void Action(int instanceId, string pathName, string resourceFile)
             {
