@@ -8,9 +8,9 @@ namespace ScriptableObjectWizard
     /// <summary>
     /// Window that lists ScriptableObject types in a searchable tree grouped by namespace.
     /// </summary>
-    public class ScriptableObjectFactoryTreeWindow : EditorWindow
+    public class TreeViewTypePickerWindow : ATypePickerWindow
     {
-        private const string SearchFieldControlName = "ScriptableObjectWizardTypeSearch";
+        private const string SEARCH_FIELD_CONTROL_NAME = "ScriptableObjectWizardTypeSearch";
 
         private ScriptableObjectTypeTreeView _treeView;
         private InlineSearchField _searchField;
@@ -18,26 +18,21 @@ namespace ScriptableObjectWizard
         private bool _focusSearchField;
         private GUIStyle _paddingStyle;
 
-        public static void Init(Type[] types)
+        private void OnEnable()
         {
-            var window = GetWindow<ScriptableObjectFactoryTreeWindow>(true, "Create a new ScriptableObject", true);
-            window.minSize = new Vector2(320f, 400f);
-            window._treeView = new ScriptableObjectTypeTreeView(new TreeViewState(), types, window.CreateAsset);
-            window._searchField = new InlineSearchField(SearchFieldControlName, window.Repaint);
-            window._search = string.Empty;
-            window._focusSearchField = true;
-            window.ShowPopup();
+            minSize = new Vector2(320f, 400f);
         }
 
-        private void OnGUI()
+        protected override void OnTypesChanged()
         {
-            // The type list does not survive a domain reload, so close instead of showing an empty window.
-            if (_treeView == null)
-            {
-                Close();
-                GUIUtility.ExitGUI();
-            }
+            _treeView = new ScriptableObjectTypeTreeView(new TreeViewState(), Types, CreateAsset);
+            _searchField = new InlineSearchField(SEARCH_FIELD_CONTROL_NAME, Repaint);
+            _search = string.Empty;
+            _focusSearchField = true;
+        }
 
+        protected override void DrawContent()
+        {
             if (_paddingStyle == null) _paddingStyle = new GUIStyle { padding = new RectOffset(6, 6, 6, 6) };
 
             using (new EditorGUILayout.VerticalScope(_paddingStyle))
@@ -95,13 +90,6 @@ namespace ScriptableObjectWizard
                 current.Use();
                 CreateAsset(_treeView.SelectedType);
             }
-        }
-
-        private void CreateAsset(Type type)
-        {
-            ScriptableObjectFactory.StartCreatingAsset(type);
-            Close();
-            GUIUtility.ExitGUI();
         }
     }
 }

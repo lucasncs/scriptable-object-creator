@@ -20,12 +20,13 @@ namespace ScriptableObjectWizard.Settings
     /// </summary>
     public class ScriptableObjectWizardSettings : ScriptableObject
     {
-        private const string SettingsPath = "ProjectSettings/ScriptableObjectWizardSettings.asset";
+        private const string SETTINGS_PATH = "ProjectSettings/ScriptableObjectWizardSettings.asset";
 
         private static ScriptableObjectWizardSettings _instance;
 
         [SerializeField] private List<string> _assemblyNames = new List<string> { "Assembly-CSharp" };
         [SerializeField] private TypePickerStyle _typePicker = TypePickerStyle.Dropdown;
+        [SerializeField] private bool _autoCloseWindow = true;
 
         public static ScriptableObjectWizardSettings Instance
         {
@@ -48,6 +49,21 @@ namespace ScriptableObjectWizard.Settings
             {
                 if (_typePicker == value) return;
                 _typePicker = value;
+                Save();
+            }
+        }
+
+        /// <summary>
+        /// Whether the picker window closes after creating an asset. When true it opens as a utility window,
+        /// otherwise as a regular window that can be docked.
+        /// </summary>
+        public bool AutoCloseWindow
+        {
+            get => _autoCloseWindow;
+            set
+            {
+                if (_autoCloseWindow == value) return;
+                _autoCloseWindow = value;
                 Save();
             }
         }
@@ -76,15 +92,15 @@ namespace ScriptableObjectWizard.Settings
 
         private void Save()
         {
-            InternalEditorUtility.SaveToSerializedFileAndForget(new Object[] { this }, SettingsPath, true);
+            InternalEditorUtility.SaveToSerializedFileAndForget(new Object[] { this }, SETTINGS_PATH, true);
         }
 
         private static ScriptableObjectWizardSettings Load()
         {
             ScriptableObjectWizardSettings settings = null;
-            if (File.Exists(SettingsPath))
+            if (File.Exists(SETTINGS_PATH))
             {
-                settings = InternalEditorUtility.LoadSerializedFileAndForget(SettingsPath)
+                settings = InternalEditorUtility.LoadSerializedFileAndForget(SETTINGS_PATH)
                     .OfType<ScriptableObjectWizardSettings>()
                     .FirstOrDefault();
             }

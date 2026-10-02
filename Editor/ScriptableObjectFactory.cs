@@ -11,7 +11,7 @@ namespace ScriptableObjectWizard
     public static class ScriptableObjectFactory
     {
         [MenuItem("Assets/Create/ScriptableObject", priority = 1)]
-        public static void CreateScriptableObject()
+        public static void OpenScriptableObjectCreator()
         {
             Type selectedType = GetSelectedScriptType();
             if (selectedType != null)
@@ -20,17 +20,18 @@ namespace ScriptableObjectWizard
                 return;
             }
 
-            Type[] types = GetIncludedTypes(typeof(ScriptableObject));
+            Type[] types = GetIncludedTypesOrPromptSettings();
             if (types == null) return;
 
+            bool autoClose = ScriptableObjectWizardSettings.Instance.AutoCloseWindow;
             switch (ScriptableObjectWizardSettings.Instance.TypePicker)
             {
                 case TypePickerStyle.TreeView:
-                    ScriptableObjectFactoryTreeWindow.Init(types);
+                    ATypePickerWindow.Open<TreeViewTypePickerWindow>(types, autoClose);
                     break;
                 case TypePickerStyle.Dropdown:
                 default:
-                    ScriptableObjectFactoryDropdownWindow.Init(types);
+                    ATypePickerWindow.Open<DropdownTypePickerWindow>(types, autoClose);
                     break;
             }
         }
@@ -50,21 +51,30 @@ namespace ScriptableObjectWizard
             var asset = ScriptableObject.CreateInstance(type);
             ProjectWindowUtil.StartNameEditingIfProjectWindowExists(
                 asset.GetInstanceID(),
-                ScriptableObject.CreateInstance<EndNameEdit>(),
+                ScriptableObject.CreateInstance<CreateAssetAction>(),
                 $"{type.Name}.asset",
                 AssetPreview.GetMiniThumbnail(asset),
                 null);
         }
 
-        private static Type[] GetIncludedTypes(Type type)
+        /// <summary>
+        /// Returns the creatable ScriptableObject types in the assemblies selected in the settings.
+        /// </summary>
+        internal static Type[] FindIncludedTypes()
         {
-            if (type == null) throw new ArgumentNullException(nameof(type));
             var settings = ScriptableObjectWizardSettings.Instance;
 
-            Type[] allScriptableObjects = GetCreatableTypes()
-                .Where(t => t.IsSubclassOf(type) && settings.IsAssemblyIncluded(t.Assembly.GetName().Name))
+            return GetCreatableTypes()
+                .Where(t => settings.IsAssemblyIncluded(t.Assembly.GetName().Name))
                 .ToArray();
+        }
 
+        /// <summary>
+        /// Returns <see cref="FindIncludedTypes"/>, or null after offering to open the settings when it is empty.
+        /// </summary>
+        private static Type[] GetIncludedTypesOrPromptSettings()
+        {
+            Type[] allScriptableObjects = FindIncludedTypes();
             if (allScriptableObjects.Length != 0) return allScriptableObjects;
 
             if (EditorUtility.DisplayDialog("Scriptable Object Wizard",
@@ -93,7 +103,10 @@ namespace ScriptableObjectWizard
                    && !typeof(EditorWindow).IsAssignableFrom(type) && !typeof(Editor).IsAssignableFrom(type);
         }
 
-        private class EndNameEdit : EndNameEditAction
+        /// <summary>
+        /// Saves the new instance as an asset once the user confirms its name in the Project window.
+        /// </summary>
+        private class CreateAssetAction : EndNameEditAction
         {
             public override void Action(int instanceId, string pathName, string resourceFile)
             {

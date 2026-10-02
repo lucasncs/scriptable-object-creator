@@ -12,9 +12,9 @@ namespace ScriptableObjectWizard
     internal class ScriptableObjectTypeDropdown : AdvancedDropdown
     {
         private readonly Type[] _types;
-        private readonly Action<int> _onTypeSelected;
+        private readonly Action<Type> _onTypeSelected;
 
-        public ScriptableObjectTypeDropdown(AdvancedDropdownState state, Type[] types, Action<int> onTypeSelected)
+        public ScriptableObjectTypeDropdown(AdvancedDropdownState state, Type[] types, Action<Type> onTypeSelected)
             : base(state)
         {
             _types = types;
@@ -41,7 +41,7 @@ namespace ScriptableObjectWizard
 
         protected override void ItemSelected(AdvancedDropdownItem item)
         {
-            _onTypeSelected(item.id);
+            _onTypeSelected(_types[item.id]);
         }
 
         private static AdvancedDropdownItem GetOrCreateGroup(AdvancedDropdownItem root,

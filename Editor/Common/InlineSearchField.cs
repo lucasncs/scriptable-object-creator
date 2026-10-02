@@ -33,8 +33,9 @@ namespace ScriptableObjectWizard
         public string OnGUI(string text)
         {
             GUIStyle baseStyle = GUI.skin.FindStyle("SearchTextField") ?? EditorStyles.textField;
-            GUIStyle cancelStyle = GUI.skin.FindStyle(text.Length > 0 ? "SearchCancelButton" : "SearchCancelButtonEmpty")
-                                   ?? GUIStyle.none;
+            GUIStyle cancelStyle =
+                GUI.skin.FindStyle(text.Length > 0 ? "SearchCancelButton" : "SearchCancelButtonEmpty")
+                ?? GUIStyle.none;
 
             Rect rect = GUILayoutUtility.GetRect(GUIContent.none, baseStyle, GUILayout.ExpandWidth(true));
             float buttonWidth = cancelStyle.fixedWidth > 0 ? cancelStyle.fixedWidth : 14f;

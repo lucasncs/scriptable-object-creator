@@ -90,7 +90,8 @@ namespace ScriptableObjectWizard
 
             if (_namespaceStyle == null)
             {
-                _namespaceStyle = new GUIStyle(EditorStyles.centeredGreyMiniLabel) { alignment = TextAnchor.MiddleRight };
+                _namespaceStyle = new GUIStyle(EditorStyles.centeredGreyMiniLabel)
+                    { alignment = TextAnchor.MiddleRight };
             }
 
             Rect rect = args.rowRect;
@@ -163,6 +164,7 @@ namespace ScriptableObjectWizard
                 .OrderBy(child => child.id > 0)
                 .ThenBy(child => child.displayName, StringComparer.OrdinalIgnoreCase)
                 .ToList();
+
             foreach (TreeViewItem child in item.children)
             {
                 SortChildren(child);

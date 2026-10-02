@@ -23,17 +23,17 @@ namespace ScriptableObjectWizard.Settings
         }
 
         private List<AssemblyEntry> _projectAssemblies;
-        private List<AssemblyEntry> _otherAssemblies;
+        private List<AssemblyEntry> _unityAssemblies;
         private Vector2 _scrollPosition;
         private string _search = string.Empty;
-        private GUIStyle _searchFieldStyle;
-        private bool _refocusSearchField;
-        private bool _showOtherAssemblies;
+        private readonly InlineSearchField _searchField;
+        private bool _showUnityAssemblies;
 
         private ScriptableObjectWizardSettingsProvider()
             : base(SETTINGS_MENU_PATH, SettingsScope.Project,
-                new[] { "ScriptableObject", "Assembly", "Wizard", "Type Picker" })
+                new[] { "ScriptableObject", "Assembly", "Wizard", "Type Picker", "Auto Close Window" })
         {
+            _searchField = new InlineSearchField(SEARCH_FIELD_CONTROL_NAME, Repaint);
         }
 
         [SettingsProvider]
@@ -56,7 +56,7 @@ namespace ScriptableObjectWizard.Settings
                 .ToList();
 
             _projectAssemblies = entries.Where(e => projectAssemblyNames.Contains(e.Name)).ToList();
-            _otherAssemblies = entries.Where(e => !projectAssemblyNames.Contains(e.Name)).ToList();
+            _unityAssemblies = entries.Where(e => !projectAssemblyNames.Contains(e.Name)).ToList();
         }
 
         private static bool IsUnityPackageAssembly(string assemblyName)
@@ -68,18 +68,25 @@ namespace ScriptableObjectWizard.Settings
 
         public override void OnGUI(string searchContext)
         {
-            ScriptableObjectWizardSettings settings = ScriptableObjectWizardSettings.Instance;
+            var settings = ScriptableObjectWizardSettings.Instance;
 
             settings.TypePicker = (TypePickerStyle)EditorGUILayout.EnumPopup(
                 new GUIContent("Type Picker",
                     "How Assets > Create > ScriptableObject lets you choose the class to create."),
                 settings.TypePicker);
+
+            settings.AutoCloseWindow = EditorGUILayout.Toggle(
+                new GUIContent("Auto Close Window",
+                    "Close the picker window after creating an asset. When enabled the window floats as a utility " +
+                    "window; when disabled it opens as a regular window that can be docked and stays open."),
+                settings.AutoCloseWindow);
+
             EditorGUILayout.Space();
 
             EditorGUILayout.HelpBox(
                 "Select the assemblies whose ScriptableObject types are listed by Assets > Create > ScriptableObject.",
                 MessageType.None);
-            _search = DrawSearchField(_search);
+            _search = _searchField.OnGUI(_search);
             EditorGUILayout.Space();
 
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
@@ -88,15 +95,15 @@ namespace ScriptableObjectWizard.Settings
             DrawAssemblyToggles(settings, _projectAssemblies);
 
             EditorGUILayout.Space();
-            _showOtherAssemblies = EditorGUILayout.Foldout(_showOtherAssemblies,
-                $"Unity & Precompiled Assemblies ({_otherAssemblies.Count})", true);
-            if (_showOtherAssemblies)
+            _showUnityAssemblies = EditorGUILayout.Foldout(_showUnityAssemblies,
+                $"Unity & Precompiled Assemblies ({_unityAssemblies.Count})", true);
+            if (_showUnityAssemblies)
             {
-                DrawAssemblyToggles(settings, _otherAssemblies);
+                DrawAssemblyToggles(settings, _unityAssemblies);
             }
 
             List<string> missing = settings.AssemblyNames
-                .Where(n => _projectAssemblies.All(e => e.Name != n) && _otherAssemblies.All(e => e.Name != n))
+                .Where(n => _projectAssemblies.All(e => e.Name != n) && _unityAssemblies.All(e => e.Name != n))
                 .ToList();
             if (missing.Count > 0)
             {
@@ -116,54 +123,6 @@ namespace ScriptableObjectWizard.Settings
             }
 
             EditorGUILayout.EndScrollView();
-        }
-
-        /// <summary>
-        /// Draws a search field with the magnifier icon on the left and the clear button inside its right edge.
-        /// </summary>
-        private string DrawSearchField(string text)
-        {
-            GUIStyle fieldStyle = GUI.skin.FindStyle("SearchTextField") ?? EditorStyles.textField;
-            GUIStyle cancelStyle =
-                GUI.skin.FindStyle(text.Length > 0 ? "SearchCancelButton" : "SearchCancelButtonEmpty")
-                ?? GUIStyle.none;
-
-            Rect rect = GUILayoutUtility.GetRect(GUIContent.none, fieldStyle, GUILayout.ExpandWidth(true));
-            float buttonWidth = cancelStyle.fixedWidth > 0 ? cancelStyle.fixedWidth : 14f;
-            float buttonHeight = cancelStyle.fixedHeight > 0 ? cancelStyle.fixedHeight : rect.height;
-            var buttonRect = new Rect(rect.xMax - buttonWidth - 2f, rect.y + (rect.height - buttonHeight) * 0.5f,
-                buttonWidth, buttonHeight);
-
-            Event current = Event.current;
-            if (text.Length > 0 && current.type == EventType.MouseDown && buttonRect.Contains(current.mousePosition))
-            {
-                _refocusSearchField = GUI.GetNameOfFocusedControl() == SEARCH_FIELD_CONTROL_NAME;
-                text = string.Empty;
-                GUIUtility.keyboardControl = 0;
-                current.Use();
-                Repaint();
-            }
-            else if (_refocusSearchField && current.type == EventType.Layout)
-            {
-                _refocusSearchField = false;
-                EditorGUI.FocusTextInControl(SEARCH_FIELD_CONTROL_NAME);
-            }
-
-            if (_searchFieldStyle == null || _searchFieldStyle.name != fieldStyle.name)
-            {
-                _searchFieldStyle = new GUIStyle(fieldStyle);
-                _searchFieldStyle.padding.right += (int)buttonWidth + 2;
-            }
-
-            GUI.SetNextControlName(SEARCH_FIELD_CONTROL_NAME);
-            text = EditorGUI.TextField(rect, text, _searchFieldStyle);
-
-            if (current.type == EventType.Repaint)
-            {
-                cancelStyle.Draw(buttonRect, GUIContent.none, false, false, false, false);
-            }
-
-            return text;
         }
 
         private void DrawAssemblyToggles(ScriptableObjectWizardSettings settings, List<AssemblyEntry> entries)
