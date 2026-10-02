@@ -9,8 +9,6 @@ namespace ScriptableObjectCreator
     /// </summary>
     public abstract class ATypePickerWindow : EditorWindow
     {
-        private const string WINDOW_TITLE = "ScriptableObject Creator";
-
         [SerializeField] private bool _autoClose;
 
         /// <summary>
@@ -24,7 +22,7 @@ namespace ScriptableObjectCreator
         /// </summary>
         internal static void Open<T>(Type[] types, bool autoClose) where T : ATypePickerWindow
         {
-            var window = GetWindow<T>(autoClose, WINDOW_TITLE, true);
+            var window = GetWindow<T>(autoClose, Constants.DISPLAY_NAME, true);
             window._autoClose = autoClose;
             window.SetTypes(types);
         }

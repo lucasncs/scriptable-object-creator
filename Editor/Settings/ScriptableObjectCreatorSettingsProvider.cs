@@ -13,7 +13,6 @@ namespace ScriptableObjectCreator.Settings
     /// </summary>
     internal class ScriptableObjectCreatorSettingsProvider : SettingsProvider
     {
-        private const string SETTINGS_MENU_PATH = "Project/ScriptableObject Creator";
         private const string SEARCH_FIELD_CONTROL_NAME = "ScriptableObjectCreatorAssemblySearch";
 
         private struct AssemblyEntry
@@ -29,7 +28,7 @@ namespace ScriptableObjectCreator.Settings
         private bool _showUnityAssemblies;
 
         private ScriptableObjectCreatorSettingsProvider()
-            : base(SETTINGS_MENU_PATH, SettingsScope.Project,
+            : base(Constants.SETTINGS_MENU_PATH, SettingsScope.Project,
                 new[] { "ScriptableObject", "Assembly", "Creator", "Type Picker", "Auto Close Window" })
         {
             _searchField = new InlineSearchField(SEARCH_FIELD_CONTROL_NAME, Repaint);

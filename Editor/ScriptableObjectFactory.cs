@@ -77,11 +77,11 @@ namespace ScriptableObjectCreator
             Type[] allScriptableObjects = FindIncludedTypes();
             if (allScriptableObjects.Length != 0) return allScriptableObjects;
 
-            if (EditorUtility.DisplayDialog("ScriptableObject Creator",
+            if (EditorUtility.DisplayDialog(Constants.DISPLAY_NAME,
                     "No ScriptableObject types were found in the selected assemblies.",
                     "Open Settings", "Cancel"))
             {
-                SettingsService.OpenProjectSettings("Project/ScriptableObject Creator");
+                SettingsService.OpenProjectSettings(Constants.SETTINGS_MENU_PATH);
             }
 
             return null;
