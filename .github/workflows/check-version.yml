@@ -1,0 +1,50 @@
+# Checks that a pushed release tag matches the version in package.json, has a CHANGELOG.md entry,
+# and is the version the README's installation instructions point to.
+name: Check release version
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compare tag with package.json, CHANGELOG.md and README.md
+        run: |
+          tag="$GITHUB_REF_NAME"
+          version="$(jq -r .version package.json)"
+          failed=0
+
+          if [ "$tag" != "$version" ]; then
+            echo "::error file=package.json::Tag '$tag' does not match package.json version '$version'."
+            failed=1
+          fi
+
+          if ! grep -qF "## [$version]" CHANGELOG.md; then
+            echo "::error file=CHANGELOG.md::CHANGELOG.md has no '## [$version]' section."
+            failed=1
+          fi
+
+          # Every git URL in the README must install this version, e.g. "...creator.git#1.2.0".
+          install_refs="$(grep -noE '\.git#[0-9A-Za-z.+-]+' README.md || true)"
+          if [ -z "$install_refs" ]; then
+            echo "::error file=README.md::README.md has no git URL with a '#version' to install."
+            failed=1
+          fi
+          while IFS=: read -r line ref; do
+            [ -z "$ref" ] && continue
+            if [ "${ref#.git#}" != "$version" ]; then
+              echo "::error file=README.md,line=$line::README.md installs '${ref#.git#}' instead of '$version'."
+              failed=1
+            fi
+          done <<< "$install_refs"
+
+          if [ "$failed" -ne 0 ]; then
+            exit 1
+          fi
+
+          echo "Tag '$tag' matches package.json, CHANGELOG.md and README.md."

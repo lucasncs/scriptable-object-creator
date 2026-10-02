@@ -2,6 +2,17 @@
   "name": "com.lucasncs.scriptable-object-creator",
   "displayName": "ScriptableObject Creator",
   "version": "1.0.0",
+  "description": "Create ScriptableObject assets of any class from the Project window, without adding a [CreateAssetMenu] attribute to each one. Pick the class from a searchable list grouped by namespace, and choose which assemblies it lists in the project settings.",
+  "keywords": [
+    "scriptableobject",
+    "scriptable object",
+    "asset",
+    "create",
+    "createassetmenu",
+    "editor",
+    "tools",
+    "workflow"
+  ],
   "license": "Unlicense",
   "author": {
     "name": "Lucas Neves de Castro Souza"
