@@ -24,7 +24,6 @@ namespace ScriptableObjectCreator.Settings
 
         private List<AssemblyEntry> _projectAssemblies;
         private List<AssemblyEntry> _unityAssemblies;
-        private Vector2 _scrollPosition;
         private string _search = string.Empty;
         private readonly InlineSearchField _searchField;
         private bool _showUnityAssemblies;
@@ -83,46 +82,46 @@ namespace ScriptableObjectCreator.Settings
 
             EditorGUILayout.Space();
 
-            EditorGUILayout.HelpBox(
-                "Select the assemblies whose ScriptableObject types are listed by Assets > Create > ScriptableObject.",
-                MessageType.None);
-            _search = _searchField.OnGUI(_search);
-            EditorGUILayout.Space();
-
-            _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
-
-            EditorGUILayout.LabelField("Project Assemblies", EditorStyles.boldLabel);
-            DrawAssemblyToggles(settings, _projectAssemblies);
-
-            EditorGUILayout.Space();
-            _showUnityAssemblies = EditorGUILayout.Foldout(_showUnityAssemblies,
-                $"Unity & Precompiled Assemblies ({_unityAssemblies.Count})", true);
-            if (_showUnityAssemblies)
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
             {
-                DrawAssemblyToggles(settings, _unityAssemblies);
-            }
-
-            List<string> missing = settings.AssemblyNames
-                .Where(n => _projectAssemblies.All(e => e.Name != n) && _unityAssemblies.All(e => e.Name != n))
-                .ToList();
-            if (missing.Count > 0)
-            {
+                EditorGUILayout.LabelField("Assemblies", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField(
+                    "Select the assemblies whose ScriptableObject types are listed by Assets > Create > ScriptableObject.",
+                    EditorStyles.wordWrappedMiniLabel);
+                _search = _searchField.OnGUI(_search);
                 EditorGUILayout.Space();
-                EditorGUILayout.LabelField("Missing Assemblies", EditorStyles.boldLabel);
-                foreach (string assemblyName in missing)
+
+                EditorGUILayout.LabelField("Project Assemblies", EditorStyles.boldLabel);
+                DrawAssemblyToggles(settings, _projectAssemblies);
+
+                EditorGUILayout.Space();
+                _showUnityAssemblies = EditorGUILayout.Foldout(_showUnityAssemblies,
+                    $"Unity & Precompiled Assemblies ({_unityAssemblies.Count})", true);
+                if (_showUnityAssemblies)
                 {
-                    using (new EditorGUILayout.HorizontalScope())
+                    DrawAssemblyToggles(settings, _unityAssemblies);
+                }
+
+                List<string> missing = settings.AssemblyNames
+                    .Where(n => _projectAssemblies.All(e => e.Name != n) && _unityAssemblies.All(e => e.Name != n))
+                    .ToList();
+                if (missing.Count > 0)
+                {
+                    EditorGUILayout.Space();
+                    EditorGUILayout.LabelField("Missing Assemblies", EditorStyles.boldLabel);
+                    foreach (string assemblyName in missing)
                     {
-                        EditorGUILayout.LabelField(assemblyName, "No ScriptableObject types found");
-                        if (GUILayout.Button("Remove", GUILayout.Width(70)))
+                        using (new EditorGUILayout.HorizontalScope())
                         {
-                            settings.SetAssemblyIncluded(assemblyName, false);
+                            EditorGUILayout.LabelField(assemblyName, "No ScriptableObject types found");
+                            if (GUILayout.Button("Remove", GUILayout.Width(70)))
+                            {
+                                settings.SetAssemblyIncluded(assemblyName, false);
+                            }
                         }
                     }
                 }
             }
-
-            EditorGUILayout.EndScrollView();
         }
 
         private void DrawAssemblyToggles(ScriptableObjectCreatorSettings settings, List<AssemblyEntry> entries)
