@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEditorInternal;
 using UnityEngine;
 
-namespace ScriptableObjectWizard.Settings
+namespace ScriptableObjectCreator.Settings
 {
     /// <summary>
     /// How Assets > Create > ScriptableObject lets the user choose the class to create.
@@ -16,19 +16,19 @@ namespace ScriptableObjectWizard.Settings
     }
 
     /// <summary>
-    /// Project-wide settings for the wizard, stored in ProjectSettings/ScriptableObjectWizardSettings.asset.
+    /// Project-wide settings for the package, stored in ProjectSettings/ScriptableObjectCreatorSettings.asset.
     /// </summary>
-    public class ScriptableObjectWizardSettings : ScriptableObject
+    public class ScriptableObjectCreatorSettings : ScriptableObject
     {
-        private const string SETTINGS_PATH = "ProjectSettings/ScriptableObjectWizardSettings.asset";
+        private const string SETTINGS_PATH = "ProjectSettings/ScriptableObjectCreatorSettings.asset";
 
-        private static ScriptableObjectWizardSettings _instance;
+        private static ScriptableObjectCreatorSettings _instance;
 
         [SerializeField] private List<string> _assemblyNames = new List<string> { "Assembly-CSharp" };
         [SerializeField] private TypePickerStyle _typePicker = TypePickerStyle.Dropdown;
         [SerializeField] private bool _autoCloseWindow = true;
 
-        public static ScriptableObjectWizardSettings Instance
+        public static ScriptableObjectCreatorSettings Instance
         {
             get
             {
@@ -38,7 +38,7 @@ namespace ScriptableObjectWizard.Settings
         }
 
         /// <summary>
-        /// Names of the assemblies whose ScriptableObject types are listed by the wizard.
+        /// Names of the assemblies whose ScriptableObject types are listed by the type pickers.
         /// </summary>
         public IReadOnlyList<string> AssemblyNames => _assemblyNames;
 
@@ -95,19 +95,19 @@ namespace ScriptableObjectWizard.Settings
             InternalEditorUtility.SaveToSerializedFileAndForget(new Object[] { this }, SETTINGS_PATH, true);
         }
 
-        private static ScriptableObjectWizardSettings Load()
+        private static ScriptableObjectCreatorSettings Load()
         {
-            ScriptableObjectWizardSettings settings = null;
+            ScriptableObjectCreatorSettings settings = null;
             if (File.Exists(SETTINGS_PATH))
             {
                 settings = InternalEditorUtility.LoadSerializedFileAndForget(SETTINGS_PATH)
-                    .OfType<ScriptableObjectWizardSettings>()
+                    .OfType<ScriptableObjectCreatorSettings>()
                     .FirstOrDefault();
             }
 
             if (settings == null)
             {
-                settings = CreateInstance<ScriptableObjectWizardSettings>();
+                settings = CreateInstance<ScriptableObjectCreatorSettings>();
                 settings.Save();
             }
 

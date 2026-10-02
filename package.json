@@ -1,6 +1,6 @@
 {
-  "name": "com.lucasncs.scriptable-object-wizard",
-  "displayName": "Scriptable Object Wizard",
+  "name": "com.lucasncs.scriptable-object-creator",
+  "displayName": "ScriptableObject Creator",
   "version": "1.0.0",
   "license": "Unlicense",
   "author": {

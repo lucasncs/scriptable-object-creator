@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
-namespace ScriptableObjectWizard
+namespace ScriptableObjectCreator
 {
     /// <summary>
     /// Searchable dropdown listing ScriptableObject types grouped by namespace.

@@ -3,14 +3,14 @@ using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
-namespace ScriptableObjectWizard
+namespace ScriptableObjectCreator
 {
     /// <summary>
     /// Window that lists ScriptableObject types in a searchable tree grouped by namespace.
     /// </summary>
     public class TreeViewTypePickerWindow : ATypePickerWindow
     {
-        private const string SEARCH_FIELD_CONTROL_NAME = "ScriptableObjectWizardTypeSearch";
+        private const string SEARCH_FIELD_CONTROL_NAME = "ScriptableObjectCreatorTypeSearch";
 
         private ScriptableObjectTypeTreeView _treeView;
         private InlineSearchField _searchField;

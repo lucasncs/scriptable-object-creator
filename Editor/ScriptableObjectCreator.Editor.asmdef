@@ -1,5 +1,5 @@
 {
-    "name": "ScriptableObjectWizard.Editor",
+    "name": "ScriptableObjectCreator.Editor",
     "references": [],
     "includePlatforms": [
         "Editor"

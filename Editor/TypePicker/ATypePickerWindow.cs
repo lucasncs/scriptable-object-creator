@@ -2,14 +2,14 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace ScriptableObjectWizard
+namespace ScriptableObjectCreator
 {
     /// <summary>
     /// Base for the windows that let the user pick a ScriptableObject class and create an asset of it.
     /// </summary>
     public abstract class ATypePickerWindow : EditorWindow
     {
-        private const string WINDOW_TITLE = "ScriptableObject Wizard";
+        private const string WINDOW_TITLE = "ScriptableObject Creator";
 
         [SerializeField] private bool _autoClose;
 

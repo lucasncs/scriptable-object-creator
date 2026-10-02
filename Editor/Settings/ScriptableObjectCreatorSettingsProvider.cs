@@ -6,15 +6,15 @@ using UnityEditor.Compilation;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace ScriptableObjectWizard.Settings
+namespace ScriptableObjectCreator.Settings
 {
     /// <summary>
-    /// Draws the wizard settings under Edit > Project Settings > Scriptable Object Wizard.
+    /// Draws the package settings under Edit > Project Settings > ScriptableObject Creator.
     /// </summary>
-    internal class ScriptableObjectWizardSettingsProvider : SettingsProvider
+    internal class ScriptableObjectCreatorSettingsProvider : SettingsProvider
     {
-        private const string SETTINGS_MENU_PATH = "Project/Scriptable Object Wizard";
-        private const string SEARCH_FIELD_CONTROL_NAME = "ScriptableObjectWizardAssemblySearch";
+        private const string SETTINGS_MENU_PATH = "Project/ScriptableObject Creator";
+        private const string SEARCH_FIELD_CONTROL_NAME = "ScriptableObjectCreatorAssemblySearch";
 
         private struct AssemblyEntry
         {
@@ -29,9 +29,9 @@ namespace ScriptableObjectWizard.Settings
         private readonly InlineSearchField _searchField;
         private bool _showUnityAssemblies;
 
-        private ScriptableObjectWizardSettingsProvider()
+        private ScriptableObjectCreatorSettingsProvider()
             : base(SETTINGS_MENU_PATH, SettingsScope.Project,
-                new[] { "ScriptableObject", "Assembly", "Wizard", "Type Picker", "Auto Close Window" })
+                new[] { "ScriptableObject", "Assembly", "Creator", "Type Picker", "Auto Close Window" })
         {
             _searchField = new InlineSearchField(SEARCH_FIELD_CONTROL_NAME, Repaint);
         }
@@ -39,7 +39,7 @@ namespace ScriptableObjectWizard.Settings
         [SettingsProvider]
         public static SettingsProvider Create()
         {
-            return new ScriptableObjectWizardSettingsProvider();
+            return new ScriptableObjectCreatorSettingsProvider();
         }
 
         public override void OnActivate(string searchContext, VisualElement rootElement)
@@ -68,7 +68,7 @@ namespace ScriptableObjectWizard.Settings
 
         public override void OnGUI(string searchContext)
         {
-            var settings = ScriptableObjectWizardSettings.Instance;
+            var settings = ScriptableObjectCreatorSettings.Instance;
 
             settings.TypePicker = (TypePickerStyle)EditorGUILayout.EnumPopup(
                 new GUIContent("Type Picker",
@@ -125,7 +125,7 @@ namespace ScriptableObjectWizard.Settings
             EditorGUILayout.EndScrollView();
         }
 
-        private void DrawAssemblyToggles(ScriptableObjectWizardSettings settings, List<AssemblyEntry> entries)
+        private void DrawAssemblyToggles(ScriptableObjectCreatorSettings settings, List<AssemblyEntry> entries)
         {
             using (new EditorGUI.IndentLevelScope())
             {

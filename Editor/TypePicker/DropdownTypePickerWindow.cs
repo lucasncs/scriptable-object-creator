@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
-namespace ScriptableObjectWizard
+namespace ScriptableObjectCreator
 {
     /// <summary>
     /// Window that picks the ScriptableObject class from a searchable dropdown grouped by namespace.

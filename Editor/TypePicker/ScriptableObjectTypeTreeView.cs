@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
-namespace ScriptableObjectWizard
+namespace ScriptableObjectCreator
 {
     /// <summary>
     /// Tree of ScriptableObject types grouped by namespace. Searching shows a flat list of matching types.

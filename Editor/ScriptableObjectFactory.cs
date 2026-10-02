@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ScriptableObjectWizard.Settings;
+using ScriptableObjectCreator.Settings;
 using UnityEditor;
 using UnityEditor.ProjectWindowCallback;
 using UnityEngine;
 
-namespace ScriptableObjectWizard
+namespace ScriptableObjectCreator
 {
     public static class ScriptableObjectFactory
     {
@@ -23,8 +23,8 @@ namespace ScriptableObjectWizard
             Type[] types = GetIncludedTypesOrPromptSettings();
             if (types == null) return;
 
-            bool autoClose = ScriptableObjectWizardSettings.Instance.AutoCloseWindow;
-            switch (ScriptableObjectWizardSettings.Instance.TypePicker)
+            bool autoClose = ScriptableObjectCreatorSettings.Instance.AutoCloseWindow;
+            switch (ScriptableObjectCreatorSettings.Instance.TypePicker)
             {
                 case TypePickerStyle.TreeView:
                     ATypePickerWindow.Open<TreeViewTypePickerWindow>(types, autoClose);
@@ -62,7 +62,7 @@ namespace ScriptableObjectWizard
         /// </summary>
         internal static Type[] FindIncludedTypes()
         {
-            var settings = ScriptableObjectWizardSettings.Instance;
+            var settings = ScriptableObjectCreatorSettings.Instance;
 
             return GetCreatableTypes()
                 .Where(t => settings.IsAssemblyIncluded(t.Assembly.GetName().Name))
@@ -77,11 +77,11 @@ namespace ScriptableObjectWizard
             Type[] allScriptableObjects = FindIncludedTypes();
             if (allScriptableObjects.Length != 0) return allScriptableObjects;
 
-            if (EditorUtility.DisplayDialog("Scriptable Object Wizard",
+            if (EditorUtility.DisplayDialog("ScriptableObject Creator",
                     "No ScriptableObject types were found in the selected assemblies.",
                     "Open Settings", "Cancel"))
             {
-                SettingsService.OpenProjectSettings("Project/Scriptable Object Wizard");
+                SettingsService.OpenProjectSettings("Project/ScriptableObject Creator");
             }
 
             return null;
@@ -89,7 +89,7 @@ namespace ScriptableObjectWizard
 
         /// <summary>
         /// Returns every concrete ScriptableObject type in the loaded assemblies that can be instantiated as an asset,
-        /// excluding editor UI types such as EditorWindow and Editor, and the wizard's own internal types.
+        /// excluding editor UI types such as EditorWindow and Editor, and the package's own types.
         /// </summary>
         internal static IEnumerable<Type> GetCreatableTypes()
         {
